@@ -7,6 +7,52 @@
     <title>百分率時計アナログ</title>
 </head>
 <body>
-    
+    <canvas></canvas>
+    <script>
+        const canvasElement = document.querySelector('canvas');
+        canvasElement.width = 640;
+        canvasElement.height = 640;
+        const ctx = canvasElement.getContext('2d');
+        const getPercentageTime = () => {
+            const now = Date.now();
+            const startOfToday = new Date(now);
+            startOfToday.setHours(0);
+            startOfToday.setMinutes(0);
+            startOfToday.setSeconds(0);
+            startOfToday.setMilliseconds(0);
+            const passed = now - startOfToday.getTime();
+            const full = (passed/(1000.0*60.0*60.0*24.0)*100.0).toString();
+            const percent = full.match(/.*\..{4}/g)[0].replace(".","").split("");
+            return [percent[0]+percent[1], percent[2]+percent[3],percent[4]+percent[5]];
+        }
+        const clearCanvas = () => {
+            ctx.fillStyle = "white";
+            ctx.clearRect(0,0,canvasElement.width, canvasElement.height);
+        }
+        const drawLine = (ax,ay,bx,by,lineWidth=ctx.lineWidth) => {
+            ctx.beginPath();
+            ctx.moveTo(ax,ay);
+            ctx.lineTo(bx,by);
+            ctx.lineWidth = lineWidth || 10;
+            ctx.stroke();
+        }
+        const drawClockHandLine = (value, length) => {
+            const rad = value/100*2*Math.PI-Math.PI/2;
+            const ox = canvasElement.width / 2;
+            const oy = canvasElement.height / 2;
+            const x = Math.cos(rad) * length;
+            const y = Math.sin(rad) * length;
+            drawLine(ox,oy,x + ox,y + oy);
+        }
+        const drawClockHands = (longHand, shortHand) => {
+            const percentageTime = getPercentageTime();
+            clearCanvas();
+            ctx.strokeStyle = "black";
+            drawClockHandLine(percentageTime[0], 150);
+            drawClockHandLine(percentageTime[1], 100);
+            drawClockHandLine(percentageTime[2], 70);
+        }
+        setInterval(drawClockHands, 10);
+    </script>
 </body>
 </html>
